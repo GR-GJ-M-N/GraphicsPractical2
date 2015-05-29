@@ -14,9 +14,12 @@ float4x4 View, Projection, World;
 // Each member of the struct has to be given a "semantic", to indicate what kind of data should go in
 // here and how it should be treated. Read more about the POSITION0 and the many other semantics in 
 // the MSDN library
+
 struct VertexShaderInput
 {
 	float4 Position3D : POSITION0;
+	float4 Normal3D : NORMAL0;
+	float4 Color : COLOR0;
 };
 
 // The output of the vertex shader. After being passed through the interpolator/rasterizer it is also 
@@ -27,17 +30,19 @@ struct VertexShaderInput
 // defined by these three vertices. Therefor, all the values in the struct that you get as input for 
 // the pixel shaders have been linearly interpolated between there three vertices!
 // Note 2: You cannot use the data with the POSITION0 semantic in the pixel shader.
+
 struct VertexShaderOutput
 {
 	float4 Position2D : POSITION0;
+	float4 Color : COLOR0;
 };
 
 //------------------------------------------ Functions ------------------------------------------
 
 // Implement the Coloring using normals assignment here
-float4 NormalColor(/* parameter(s) */)
+float4 NormalColor(VertexShaderOutput input)
 {
-	return float4(1, 0, 0, 1);
+	return float4(input.Normal, 0);
 }
 
 // Implement the Procedural texturing assignment here
@@ -63,7 +68,7 @@ VertexShaderOutput SimpleVertexShader(VertexShaderInput input)
 
 float4 SimplePixelShader(VertexShaderOutput input) : COLOR0
 {
-	float4 color = NormalColor();
+	float4 color = NormalColor(input);
 
 	return color;
 }
