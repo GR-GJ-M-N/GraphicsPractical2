@@ -42,7 +42,21 @@ struct VertexShaderOutput
 // Implement the Coloring using normals assignment here
 float4 NormalColor(VertexShaderOutput input)
 {
-	return float4(input.Normal, 0);
+	//return float4(input.Normal, 0, 0, 1);	
+	//return float4(input.Normal, input.Normal, input.Normal, 1);
+	//return float4(input.Position2D, 0, 0, 1);
+	//return float4(input.Position2D.x, 0, 0, 1);
+	//return float4(input.Position2D[0], 0, 0, 1);
+	//return float4(input.Position2D.xyz, 0, 0, 1);
+	//return float4(input.Position2D.xyzw, 0, 0, 1);
+	//return float4(input.Position2D.xy.x, 0, 0, 1);
+	//return float4(input.Position2D.Normal, 0, 0, 1);
+	//return float4(input.Position2D, 0, 0, 1);
+	//return float4(input.Position2D);
+	//return float4(input.Color, 0, 0, 1);
+	return float4(input.Color.r, input.Color.g, input.Color.b, 0); //zwart
+
+	//return float4(1, 0, 0, 1); //voorbeeld
 }
 
 // Implement the Procedural texturing assignment here
