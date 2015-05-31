@@ -42,13 +42,13 @@ struct VertexShaderOutput
 // Implement the Coloring using normals assignment here
 float4 NormalColor(VertexShaderOutput input)
 {
-	return float4(1, 0, 0, 1);
+	return float4(input.Color.r, input.Color.g, input.Color.b, 0);
 }
 
 // Implement the Procedural texturing assignment here
 float4 ProceduralColor(VertexShaderOutput input)
 {
-	return float4(0, 0, 0, 1);
+	return float4((input.Color.x % 0.2) * 10, (input.Color.y % 0.2) * 10, 0, 1);
 }
 
 //---------------------------------------- Technique: Simple ----------------------------------------
@@ -64,20 +64,20 @@ VertexShaderOutput SimpleVertexShader(VertexShaderInput input)
 	output.Position2D    = mul(viewPosition, Projection);
 
 	//1.1 Coloring using normals
-	//output.Color = input.Normal3D.xyzz;
+	output.Color = input.Normal3D.xyzz;
 
 	//1.2 Checkerboard pattern
-	output.Color = float4((input.Normal3D.x % 0.2) * 10, (input.Normal3D.y % 0.2) * 10, 0, 1);
+	
+	
+	//output.Color = float4((input.Normal3D.x % 0.2) * 10, (input.Normal3D.y % 0.2) * 10, 0, 1);
 
 	return output;
 }
 
 float4 SimplePixelShader(VertexShaderOutput input) : COLOR0
 {
-	float4 color = float4(input.Color.r, input.Color.g, input.Color.b, 0);
-
 	//float4 color = NormalColor(input);
-	//float4 color = ProceduralColor(input);
+	float4 color = ProceduralColor(input);
 
 	return color;
 }
