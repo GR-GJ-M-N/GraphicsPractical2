@@ -194,3 +194,37 @@ technique BlinnPhong
 		PixelShader  = compile ps_2_0 BlinnPhongPixelShader();
 	}
 }
+
+//---------------------------------------- Technique: 3 Texture ----------------------------------------
+
+VertexShaderOutput TextureVertexShader(VertexShaderInput input)
+{
+	// Allocate an empty output struct
+	VertexShaderOutput output = (VertexShaderOutput)0;
+
+	// Do the matrix multiplications for perspective projection and the world transform
+	float4 worldPosition = mul(input.Position3D, World);
+    float4 viewPosition  = mul(worldPosition, View);
+	output.Position2D    = mul(viewPosition, Projection);
+
+	output.Normal = input.Normal3D.xyz;
+
+	return output;
+}
+
+float4 TexturePixelShader(VertexShaderOutput input) : COLOR0
+{
+	//float4 color = NormalColor(input);
+	float4 color = float4(1, 1, 1, 1);
+
+	return color;
+}
+
+technique Texture
+{
+	pass Pass0
+	{
+		VertexShader = compile vs_2_0 TextureVertexShader();
+		PixelShader  = compile ps_2_0 TexturePixelShader();
+	}
+}

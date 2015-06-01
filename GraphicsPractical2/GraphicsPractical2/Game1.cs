@@ -69,7 +69,7 @@ namespace GraphicsPractical2
             // Load the model and let it use the "Simple" effect
             this.model = this.Content.Load<Model>("Models/Teapot");
             this.model.Meshes[0].MeshParts[0].Effect = effect;
-
+            
             //2.1 start
             modelMaterial = new Material();
             modelMaterial.DiffuseColor = Color.Red;
@@ -130,7 +130,20 @@ namespace GraphicsPractical2
         {
             // Clear the screen in a predetermined color and clear the depth buffer
             this.GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.DeepSkyBlue, 1.0f, 0);
-            
+
+            Matrix world = Matrix.CreateScale(10.0f);
+
+            Effect quadEffect = this.Content.Load<Effect>("Effects/Simple");
+            quadEffect.CurrentTechnique = quadEffect.Techniques["Texture"];
+            quadEffect.Parameters["World"].SetValue(world);
+
+            foreach (EffectPass pass in quadEffect.CurrentTechnique.Passes)
+            {
+                pass.Apply();
+                this.GraphicsDevice.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, this.quadVertices, 0, 4, this.quadIndices, 0, 2);
+            }
+
+
             // Get the model's only mesh
             ModelMesh mesh = this.model.Meshes[0];
             Effect effect = mesh.Effects[0];
@@ -142,7 +155,6 @@ namespace GraphicsPractical2
 
             // Matrices for 3D perspective projection
             this.camera.SetEffectParameters(effect);
-            Matrix world = Matrix.CreateScale(10.0f, 6.5f, 2.5f);
             Matrix inverseTransposed = Matrix.Invert(Matrix.Transpose(world));
             effect.Parameters["World"].SetValue(world);
             effect.Parameters["InvTransposed"].SetValue(inverseTransposed);
