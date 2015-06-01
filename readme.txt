@@ -1,7 +1,7 @@
-1.1 Mehul & Norico
+1.1 af Mehul & Norico
 1.2 Mehul
-2.1 Norico
-2.2 Gert-Jan
-2.3 Gert-Jan
+2.1 af Gert-Jan & Norico
+2.2 af Gert-Jan
+2.3 af Gert-Jan
 2.4 Norico
 3 Mehul
