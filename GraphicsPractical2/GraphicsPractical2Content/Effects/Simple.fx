@@ -70,9 +70,8 @@ VertexShaderOutput SimpleVertexShader(VertexShaderInput input)
     float4 viewPosition  = mul(worldPosition, View);
 	output.Position2D    = mul(viewPosition, Projection);
 	
-
 	output.Normal = input.Normal3D.xyz;
-	input.Place = input.Place.xyzz;
+	input.Place = input.Place.xyzz; //ander probleempje?
 
 	return output;
 }
@@ -83,31 +82,19 @@ bool Checker(VertexShaderOutput input)
 {
 	bool x = (int)(input.Place.x * sizeMultiplier) % 2;
 	bool y = (int)(input.Place.y * sizeMultiplier) % 2;
-	//bool z = (int)(input.Normal.z * sizeMultiplier) % 2;
 
-	// Checkerboard pattern is formed by inverting the boolean flag
-	// at each dimension separately:
-
-	if (x == y) //&& y == z)
+	if (x == y)
 		return true;
 	else
 		return false;
-
-
-	//return (x != y != z);
 }	
 
 float4 SimplePixelShader(VertexShaderOutput input) : COLOR0
 {
 	if(Checker(input))
-	{
 		return NormalColor(input);
-	}
 	else
-	{
 		return ProceduralColor(input);
-	}
-
 }
 
 technique Simple
