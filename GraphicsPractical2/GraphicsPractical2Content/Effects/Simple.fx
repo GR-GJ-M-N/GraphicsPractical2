@@ -20,6 +20,7 @@ struct VertexShaderInput
 	float4 Position3D : POSITION0;
 	float4 Normal3D : NORMAL0;
 	float4 Color : COLOR0;
+	float4 Place : TEXCOORD0;
 };
 
 // The output of the vertex shader. After being passed through the interpolator/rasterizer it is also 
@@ -35,7 +36,8 @@ struct VertexShaderOutput
 {
 	float4 Position2D : POSITION0;
 	float4 Color : COLOR0;
-	float3 Normal : TEXCOORD0;
+	float3 Normal, Place : TEXCOORD0;
+	//float4 Place : TEXCOORD0;
 };
 
 //------------------------------------------ Functions ------------------------------------------
@@ -70,22 +72,23 @@ VertexShaderOutput SimpleVertexShader(VertexShaderInput input)
 	
 
 	output.Normal = input.Normal3D.xyz;
+	input.Place = input.Place.xyzz;
 
 	return output;
 }
 
-int sizeMultiplier = 8;
+int sizeMultiplier = 15;
 
 bool Checker(VertexShaderOutput input)
 {
-	bool x = (int)(input.Normal.x * sizeMultiplier) & 2;
-	bool y = (int)(input.Normal.y * sizeMultiplier) & 2;
-	bool z = (int)(input.Normal.z * sizeMultiplier) & 2;
+	bool x = (int)(input.Place.x * sizeMultiplier) % 2;
+	bool y = (int)(input.Place.y * sizeMultiplier) % 2;
+	//bool z = (int)(input.Normal.z * sizeMultiplier) % 2;
 
 	// Checkerboard pattern is formed by inverting the boolean flag
 	// at each dimension separately:
 
-	if (x == y && y == z)
+	if (x == y) //&& y == z)
 		return true;
 	else
 		return false;
@@ -106,9 +109,6 @@ float4 SimplePixelShader(VertexShaderOutput input) : COLOR0
 	}
 
 }
-
-
-
 
 technique Simple
 {
