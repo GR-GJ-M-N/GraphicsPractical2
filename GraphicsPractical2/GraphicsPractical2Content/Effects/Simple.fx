@@ -49,10 +49,14 @@ float4 NormalColor(VertexShaderOutput input)
 // Implement the Procedural texturing assignment here
 float4 ProceduralColor(VertexShaderOutput input)
 {
-	return float4((input.Normal.x % 0.2) * 10, (input.Normal.y % 0.2) * 10, 0, 1);
+	return float4(0, 0, 0, 0);
+	//return float4((input.Normal.x % 2), (input.Normal.y % 2), 0, 1);
 }
 
+
 //---------------------------------------- Technique: Simple ----------------------------------------
+
+
 
 VertexShaderOutput SimpleVertexShader(VertexShaderInput input)
 {
@@ -63,19 +67,43 @@ VertexShaderOutput SimpleVertexShader(VertexShaderInput input)
 	float4 worldPosition = mul(input.Position3D, World);
     float4 viewPosition  = mul(worldPosition, View);
 	output.Position2D    = mul(viewPosition, Projection);
+	
 
 	output.Normal = input.Normal3D.xyz;
 
 	return output;
 }
 
+int sizeMultiplier = 8;
+
+bool Checker(VertexShaderOutput input)
+{
+	bool x = (int)(input.Normal.x*sizeMultiplier) & 2;
+	bool y = (int)(input.Normal.y*sizeMultiplier) & 2;
+	bool z = (int)(input.Normal.z*sizeMultiplier) & 2;
+
+	// Checkerboard pattern is formed by inverting the boolean flag
+	// at each dimension separately:
+	return (x != y != z);
+}	
+
 float4 SimplePixelShader(VertexShaderOutput input) : COLOR0
 {
-	//float4 color = NormalColor(input);
+	bool inChecker = Checker(input);
+	if(inChecker)
+	{
+	float4 color = NormalColor(input);
+	}
+	else
+	{
 	float4 color = ProceduralColor(input);
+	}
 
 	return color;
 }
+
+
+
 
 technique Simple
 {
