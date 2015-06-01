@@ -36,8 +36,8 @@ struct VertexShaderOutput
 {
 	float4 Position2D : POSITION0;
 	float4 Color : COLOR0;
-	float3 Normal : TEXCOORD0;
-	float3 Place : TEXCOORD1;
+	float3 Normal : TEXCOORD1;
+	float3 Place : TEXCOORD0;
 	//float4 Place : TEXCOORD0;
 };
 
@@ -52,8 +52,8 @@ float4 NormalColor(VertexShaderOutput input)
 // Implement the Procedural texturing assignment here
 float4 ProceduralColor(VertexShaderOutput input)
 {
-	//return float4(0, 0, 0, 0);
-	return float4((input.Normal.x % 2), (input.Normal.y % 2), 0, 1);
+	return float4(-input.Normal.x, -input.Normal.y, -input.Normal.z, 1);
+	//return float4((input.Normal.x % 2), (input.Normal.y % 2), 0, 1);
 }
 
 
@@ -72,17 +72,17 @@ VertexShaderOutput SimpleVertexShader(VertexShaderInput input)
 	output.Position2D    = mul(viewPosition, Projection);
 	
 	output.Normal = input.Normal3D.xyz;
-	output.Place = input.Place.xyz;
+	output.Place = input.Position3D.xyz;
 
 	return output;
 }
 
-int sizeMultiplier = 15;
+int sizeMultiplier = 8;
 
 bool Checker(VertexShaderOutput input)
 {
-	bool x = (int)(input.Place.x * sizeMultiplier) % 2;
-	bool y = (int)(input.Place.y * sizeMultiplier) % 2;
+	bool x = (int)((input.Place.x + 3) * sizeMultiplier) % 2;
+	bool y = (int)((input.Place.y + 3) * sizeMultiplier) % 2;
 
 	if (x == y)
 		return true;
@@ -93,9 +93,13 @@ bool Checker(VertexShaderOutput input)
 float4 SimplePixelShader(VertexShaderOutput input) : COLOR0
 {
 	if(Checker(input))
+	{
 		return NormalColor(input);
+	}
 	else
+	{
 		return ProceduralColor(input);
+	}
 }
 
 technique Simple
