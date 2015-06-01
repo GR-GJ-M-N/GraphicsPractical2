@@ -85,3 +85,37 @@ technique Simple
 		PixelShader  = compile ps_2_0 SimplePixelShader();
 	}
 }
+
+//---------------------------------------- Technique: 2.1 Lambertian ----------------------------------------
+
+VertexShaderOutput LambertianVertexShader(VertexShaderInput input)
+{
+	// Allocate an empty output struct
+	VertexShaderOutput output = (VertexShaderOutput)0;
+
+	// Do the matrix multiplications for perspective projection and the world transform
+	float4 worldPosition = mul(input.Position3D, World);
+    float4 viewPosition  = mul(worldPosition, View);
+	output.Position2D    = mul(viewPosition, Projection);
+
+	output.Normal = input.Normal3D.xyz;
+
+	return output;
+}
+
+float4 LambertianPixelShader(VertexShaderOutput input) : COLOR0
+{
+	//float4 color = NormalColor(input);
+	float4 color = ProceduralColor(input);
+
+	return color;
+}
+
+technique Lambertian
+{
+	pass Pass0
+	{
+		VertexShader = compile vs_2_0 SimpleVertexShader();
+		PixelShader  = compile ps_2_0 SimplePixelShader();
+	}
+}

@@ -121,7 +121,8 @@ namespace GraphicsPractical2
             Effect effect = mesh.Effects[0];
 
             // Set the effect parameters
-            effect.CurrentTechnique = effect.Techniques["Simple"];
+            //effect.CurrentTechnique = effect.Techniques["Simple"];
+            effect.CurrentTechnique = effect.Techniques["Lambertian"];
             // Matrices for 3D perspective projection
             this.camera.SetEffectParameters(effect);
             effect.Parameters["World"].SetValue(Matrix.CreateScale(10.0f));
