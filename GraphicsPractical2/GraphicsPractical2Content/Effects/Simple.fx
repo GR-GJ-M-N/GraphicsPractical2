@@ -8,8 +8,9 @@
 
 // Matrices for 3D perspective projection 
 float4x4 View, Projection, World;
-float4 DiffuseColor;
-float3 Light;
+float4 DiffuseColor, AmbientColor, SpecularColor;
+float3 Light, Camera;
+float AmbientIntensity, SpecularIntensity, SpecularPower;
 
 //---------------------------------- Input / Output structures ----------------------------------
 
@@ -38,6 +39,7 @@ struct VertexShaderOutput
 	float4 Position2D : POSITION0;
 	float4 Color : COLOR0;
 	float3 Normal : TEXCOORD0;
+	float3 WorldPosition : TEXCOORD1;
 };
 
 //------------------------------------------ Functions ------------------------------------------
@@ -100,24 +102,94 @@ VertexShaderOutput LambertianVertexShader(VertexShaderInput input)
     float4 viewPosition  = mul(worldPosition, View);
 	output.Position2D    = mul(viewPosition, Projection);
 
-	output.Normal = input.Normal3D.xyz;
+	// Interpolate the 3D position
+	output.WorldPosition = mul(output.Position2D, World);
+
+	output.Normal = input.Normal3D.xyz;	
 
 	return output;
 }
 
 float4 LambertianPixelShader(VertexShaderOutput input) : COLOR0
 {
-	//float4 color = NormalColor(input);
-	float4 color = ProceduralColor(input);
+	float3x3 rotationAndScale = (float3x3) World;
+	float3 normal = input.Normal;
+	normal = mul(normal, rotationAndScale);
+	float3 tLight = mul(Light, rotationAndScale);
 
-	return color;
+	//Normalize the normal
+	normal = normalize(normal);
+
+	//Calculate L
+	float3 lVector = normalize(tLight - normal);
+
+	//Calculate n dot l, clamp to 0, 1
+	float intensity = saturate(dot(normal, lVector));
+
+	return AmbientIntensity * AmbientColor + intensity * DiffuseColor;
+
 }
 
 technique Lambertian
 {
 	pass Pass0
 	{
-		VertexShader = compile vs_2_0 SimpleVertexShader();
-		PixelShader  = compile ps_2_0 SimplePixelShader();
+		VertexShader = compile vs_2_0 LambertianVertexShader();
+		PixelShader  = compile ps_2_0 LambertianPixelShader();
+	}
+}
+
+//---------------------------------------- Technique: 2.3 Blinn-Phong ----------------------------------------
+
+VertexShaderOutput BlinnPhongVertexShader(VertexShaderInput input)
+{
+	// Allocate an empty output struct
+	VertexShaderOutput output = (VertexShaderOutput)0;
+
+	// Do the matrix multiplications for perspective projection and the world transform
+	float4 worldPosition = mul(input.Position3D, World);
+    float4 viewPosition  = mul(worldPosition, View);
+	output.Position2D    = mul(viewPosition, Projection);
+
+	// Interpolate the 3D position
+	output.WorldPosition = mul(output.Position2D, World);
+
+	output.Normal = input.Normal3D.xyz;	
+
+	return output;
+}
+
+float4 BlinnPhongPixelShader(VertexShaderOutput input) : COLOR0
+{
+	float3x3 rotationAndScale = (float3x3) World;
+	float3 normal = input.Normal;
+	normal = mul(normal, rotationAndScale);
+	float3 tLight = mul(Light, rotationAndScale);
+
+	//Normalize the normal
+	normal = normalize(normal);
+
+	//Calculate L
+	float3 lVector = normalize(tLight - normal);
+
+	//Calculate v (the vector to the camera)
+	float3 vVector = normalize(Camera - normal);
+
+	float3 hVector = (vVector + lVector) / length(vVector + lVector);
+
+	//Calculate n dot l, clamp to 0, 1
+	float intensity = saturate(dot(normal, lVector));
+	float spec = SpecularColor * SpecularIntensity * pow(saturate(dot(normal, hVector)), SpecularPower);
+
+	return AmbientIntensity * AmbientColor + intensity * DiffuseColor + spec;
+
+}
+
+technique BlinnPhong
+{
+	pass Pass0
+	{
+		VertexShader = compile vs_2_0 BlinnPhongVertexShader();
+		PixelShader  = compile ps_2_0 BlinnPhongPixelShader();
 	}
 }

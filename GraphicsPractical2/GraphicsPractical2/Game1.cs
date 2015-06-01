@@ -73,9 +73,15 @@ namespace GraphicsPractical2
             //2.1 start
             modelMaterial = new Material();
             modelMaterial.DiffuseColor = Color.Red;
+            modelMaterial.AmbientColor = Color.Red;
+            modelMaterial.AmbientIntensity = 0.2f;
+            modelMaterial.SpecularColor = Color.White;
+            modelMaterial.SpecularIntensity = 2.0f;
+            modelMaterial.SpecularPower = 25.0f;
             modelMaterial.SetEffectParameters(effect);
 
-            effect.Parameters["Light"].SetValue(new Vector3(0.5f, 0.5f, 0.5f));
+            effect.Parameters["Light"].SetValue(new Vector3(50.0f, 50.0f, 50.0f));
+            effect.Parameters["Camera"].SetValue(this.camera.Eye);
             //2.1 end
 
             // Setup the quad
@@ -131,7 +137,8 @@ namespace GraphicsPractical2
 
             // Set the effect parameters
             //effect.CurrentTechnique = effect.Techniques["Simple"]; //1.1 1.2
-            effect.CurrentTechnique = effect.Techniques["Lambertian"]; //2.1
+            //effect.CurrentTechnique = effect.Techniques["Lambertian"]; //2.1, 2.2
+            effect.CurrentTechnique = effect.Techniques["Lambertian"]; //2.3
 
             // Matrices for 3D perspective projection
             this.camera.SetEffectParameters(effect);
