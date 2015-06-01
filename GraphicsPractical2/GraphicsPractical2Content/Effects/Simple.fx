@@ -36,7 +36,8 @@ struct VertexShaderOutput
 {
 	float4 Position2D : POSITION0;
 	float4 Color : COLOR0;
-	float3 Normal, Place : TEXCOORD0;
+	float3 Normal : TEXCOORD0;
+	float3 Place : TEXCOORD1;
 	//float4 Place : TEXCOORD0;
 };
 
@@ -51,8 +52,8 @@ float4 NormalColor(VertexShaderOutput input)
 // Implement the Procedural texturing assignment here
 float4 ProceduralColor(VertexShaderOutput input)
 {
-	return float4(0, 0, 0, 0);
-	//return float4((input.Normal.x % 2), (input.Normal.y % 2), 0, 1);
+	//return float4(0, 0, 0, 0);
+	return float4((input.Normal.x % 2), (input.Normal.y % 2), 0, 1);
 }
 
 
@@ -71,7 +72,7 @@ VertexShaderOutput SimpleVertexShader(VertexShaderInput input)
 	output.Position2D    = mul(viewPosition, Projection);
 	
 	output.Normal = input.Normal3D.xyz;
-	input.Place = input.Place.xyzz; //ander probleempje?
+	output.Place = input.Place.xyz;
 
 	return output;
 }
