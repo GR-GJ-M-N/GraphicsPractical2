@@ -87,6 +87,7 @@ int checkerSize = 8;
 //this function returns whether a given point is a black or a white(normal color) pixel
 bool Checker(VertexShaderOutput input)
 {
+	// +3 to avoid having any problems with points which involve a 0
 	bool x = (int)((input.Place.x + 3) * checkerSize) % 2;
 	bool y = (int)((input.Place.y + 3) * checkerSize) % 2;
 
