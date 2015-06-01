@@ -78,28 +78,33 @@ int sizeMultiplier = 8;
 
 bool Checker(VertexShaderOutput input)
 {
-	bool x = (int)(input.Normal.x*sizeMultiplier) & 2;
-	bool y = (int)(input.Normal.y*sizeMultiplier) & 2;
-	bool z = (int)(input.Normal.z*sizeMultiplier) & 2;
+	bool x = (int)(input.Normal.x * sizeMultiplier) & 2;
+	bool y = (int)(input.Normal.y * sizeMultiplier) & 2;
+	bool z = (int)(input.Normal.z * sizeMultiplier) & 2;
 
 	// Checkerboard pattern is formed by inverting the boolean flag
 	// at each dimension separately:
-	return (x != y != z);
+
+	if (x == y && y == z)
+		return true;
+	else
+		return false;
+
+
+	//return (x != y != z);
 }	
 
 float4 SimplePixelShader(VertexShaderOutput input) : COLOR0
 {
-	bool inChecker = Checker(input);
-	if(inChecker)
+	if(Checker(input))
 	{
-	float4 color = NormalColor(input);
+		return NormalColor(input);
 	}
 	else
 	{
-	float4 color = ProceduralColor(input);
+		return ProceduralColor(input);
 	}
 
-	return color;
 }
 
 
