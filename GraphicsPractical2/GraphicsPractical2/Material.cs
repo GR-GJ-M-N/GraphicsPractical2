@@ -41,10 +41,10 @@ namespace GraphicsPractical2
         // Using this function requires all these elements to be present as top-level variables in the shader code. Comment out the ones that you don't use
         public void SetEffectParameters(Effect effect)
         {
-            effect.Parameters["AmbientColor"].SetValue(this.AmbientColor.ToVector4());
-            effect.Parameters["AmbientIntensity"].SetValue(this.AmbientIntensity);
+            /*effect.Parameters["AmbientColor"].SetValue(this.AmbientColor.ToVector4());
+            effect.Parameters["AmbientIntensity"].SetValue(this.AmbientIntensity);*/
             effect.Parameters["DiffuseColor"].SetValue(this.DiffuseColor.ToVector4());
-            effect.Parameters["DiffuseTexture"].SetValue(this.DiffuseTexture);
+            /*effect.Parameters["DiffuseTexture"].SetValue(this.DiffuseTexture);
             effect.Parameters["NormalMap"].SetValue(this.NormalMap);
             effect.Parameters["DisplacementFactor"].SetValue(this.DisplacementFactor);
             effect.Parameters["SpecularColor"].SetValue(this.SpecularColor.ToVector4());
@@ -54,7 +54,7 @@ namespace GraphicsPractical2
             effect.Parameters["ProceduralColoring"].SetValue(this.ProceduralColoring);
 
             effect.Parameters["HasTexture"].SetValue(this.DiffuseTexture != null);
-            effect.Parameters["HasNormalMap"].SetValue(this.NormalMap != null);
+            effect.Parameters["HasNormalMap"].SetValue(this.NormalMap != null);*/
         }
     }
 }

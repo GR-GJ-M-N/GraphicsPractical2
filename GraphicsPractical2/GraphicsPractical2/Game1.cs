@@ -69,6 +69,14 @@ namespace GraphicsPractical2
             // Load the model and let it use the "Simple" effect
             this.model = this.Content.Load<Model>("Models/Teapot");
             this.model.Meshes[0].MeshParts[0].Effect = effect;
+
+            //2.1 start
+            Material material = new Material();
+            material.DiffuseColor = Color.Red;
+            material.SetEffectParameters(effect);
+            effect.Parameters["Light"].SetValue(new Vector3(0.5f, 0.5f, 0.5f));
+            //2.1 end
+
             // Setup the quad
             this.setupQuad();
         }
@@ -121,11 +129,13 @@ namespace GraphicsPractical2
             Effect effect = mesh.Effects[0];
 
             // Set the effect parameters
-            //effect.CurrentTechnique = effect.Techniques["Simple"];
-            effect.CurrentTechnique = effect.Techniques["Lambertian"];
+            //effect.CurrentTechnique = effect.Techniques["Simple"]; //1.1 1.2
+            effect.CurrentTechnique = effect.Techniques["Lambertian"]; //2.1
+
             // Matrices for 3D perspective projection
             this.camera.SetEffectParameters(effect);
-            effect.Parameters["World"].SetValue(Matrix.CreateScale(10.0f));
+            effect.Parameters["World"].SetValue(Matrix.CreateScale(10.0f));  
+
             // Draw the model
             mesh.Draw();
 
