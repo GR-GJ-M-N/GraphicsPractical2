@@ -8,6 +8,7 @@
 
 // Matrices for 3D perspective projection 
 float4x4 View, Projection, World;
+float3x3 InvTransposed;
 float4 DiffuseColor, AmbientColor, SpecularColor;
 float3 Light, Camera;
 float AmbientIntensity, SpecularIntensity, SpecularPower;
@@ -114,7 +115,7 @@ float4 LambertianPixelShader(VertexShaderOutput input) : COLOR0
 {
 	float3x3 rotationAndScale = (float3x3) World;
 	float3 normal = input.Normal;
-	normal = mul(normal, rotationAndScale);
+	normal = mul(normal, InvTransposed);
 	float3 tLight = mul(Light, rotationAndScale);
 
 	//Normalize the normal
@@ -163,7 +164,7 @@ float4 BlinnPhongPixelShader(VertexShaderOutput input) : COLOR0
 {
 	float3x3 rotationAndScale = (float3x3) World;
 	float3 normal = input.Normal;
-	normal = mul(normal, rotationAndScale);
+	normal = mul(normal, InvTransposed);
 	float3 tLight = mul(Light, rotationAndScale);
 
 	//Normalize the normal
