@@ -78,9 +78,9 @@ int sizeMultiplier = 8;
 
 bool Checker(VertexShaderOutput input)
 {
-	bool x = (int)(input.Normal.x * sizeMultiplier) & 2;
-	bool y = (int)(input.Normal.y * sizeMultiplier) & 2;
-	bool z = (int)(input.Normal.z * sizeMultiplier) & 2;
+	bool x = (int)(input.Normal.x * sizeMultiplier) % 2;
+	bool y = (int)(input.Normal.y * sizeMultiplier) % 2;
+	bool z = (int)(input.Normal.z * sizeMultiplier) % 2;
 
 	// Checkerboard pattern is formed by inverting the boolean flag
 	// at each dimension separately:
