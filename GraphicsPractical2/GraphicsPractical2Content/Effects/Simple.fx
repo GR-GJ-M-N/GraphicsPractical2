@@ -15,6 +15,7 @@ float4x4 View, Projection, World;
 // here and how it should be treated. Read more about the POSITION0 and the many other semantics in 
 // the MSDN library
 
+//input for the vertex shader
 struct VertexShaderInput
 {
 	float4 Position3D : POSITION0;
@@ -32,6 +33,7 @@ struct VertexShaderInput
 // the pixel shaders have been linearly interpolated between there three vertices!
 // Note 2: You cannot use the data with the POSITION0 semantic in the pixel shader.
 
+// output of the vertex shader
 struct VertexShaderOutput
 {
 	float4 Position2D : POSITION0;
@@ -46,14 +48,15 @@ struct VertexShaderOutput
 // Implement the Coloring using normals assignment here
 float4 NormalColor(VertexShaderOutput input)
 {
+	// the normals are used to determine the color
 	return float4(input.Normal.x, input.Normal.y, input.Normal.z, 1);
 }
 
 // Implement the Procedural texturing assignment here
 float4 ProceduralColor(VertexShaderOutput input)
 {
+	// the negative normals are used to determine the color
 	return float4(-input.Normal.x, -input.Normal.y, -input.Normal.z, 1);
-	//return float4((input.Normal.x % 2), (input.Normal.y % 2), 0, 1);
 }
 
 
@@ -70,20 +73,24 @@ VertexShaderOutput SimpleVertexShader(VertexShaderInput input)
 	float4 worldPosition = mul(input.Position3D, World);
     float4 viewPosition  = mul(worldPosition, View);
 	output.Position2D    = mul(viewPosition, Projection);
-	
+
+	// values are passed on into a form which te vertex shader can output
 	output.Normal = input.Normal3D.xyz;
 	output.Place = input.Position3D.xyz;
 
 	return output;
 }
 
-int sizeMultiplier = 8;
+// this variable controles the size of the checkers
+int checkerSize = 8;
 
+//this function returns whether a given point is a black or a white(normal color) pixel
 bool Checker(VertexShaderOutput input)
 {
-	bool x = (int)((input.Place.x + 3) * sizeMultiplier) % 2;
-	bool y = (int)((input.Place.y + 3) * sizeMultiplier) % 2;
+	bool x = (int)((input.Place.x + 3) * checkerSize) % 2;
+	bool y = (int)((input.Place.y + 3) * checkerSize) % 2;
 
+	//the checkerboard pattern is made
 	if (x == y)
 		return true;
 	else
@@ -92,10 +99,12 @@ bool Checker(VertexShaderOutput input)
 
 float4 SimplePixelShader(VertexShaderOutput input) : COLOR0
 {
+	//use normals to do the coloring
 	if(Checker(input))
 	{
 		return NormalColor(input);
 	}
+	//use negative normals to do the coloring
 	else
 	{
 		return ProceduralColor(input);
