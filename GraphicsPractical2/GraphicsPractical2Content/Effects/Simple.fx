@@ -8,6 +8,8 @@
 
 // Matrices for 3D perspective projection 
 float4x4 View, Projection, World;
+float4 DiffuseColor;
+float3 Light;
 
 //---------------------------------- Input / Output structures ----------------------------------
 

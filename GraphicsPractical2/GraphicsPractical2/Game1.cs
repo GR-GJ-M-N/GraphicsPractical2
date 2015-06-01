@@ -71,9 +71,10 @@ namespace GraphicsPractical2
             this.model.Meshes[0].MeshParts[0].Effect = effect;
 
             //2.1 start
-            Material material = new Material();
-            material.DiffuseColor = Color.Red;
-            material.SetEffectParameters(effect);
+            modelMaterial = new Material();
+            modelMaterial.DiffuseColor = Color.Red;
+            modelMaterial.SetEffectParameters(effect);
+
             effect.Parameters["Light"].SetValue(new Vector3(0.5f, 0.5f, 0.5f));
             //2.1 end
 
