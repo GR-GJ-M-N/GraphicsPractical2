@@ -30,6 +30,7 @@ namespace GraphicsPractical2
         private short[] quadIndices;
         private Matrix quadTransform;
         private Texture quadTexture;
+        private Texture quadNormalMap;
 
         public Game1()
         {
@@ -76,6 +77,7 @@ namespace GraphicsPractical2
             modelMaterial.DiffuseColor = Color.Red;
             modelMaterial.AmbientColor = Color.Red;
             modelMaterial.AmbientIntensity = 0.2f;
+            modelMaterial.AmbientIntensity = 0.0f;
             modelMaterial.SpecularColor = Color.White;
             modelMaterial.SpecularIntensity = 2.0f;
             modelMaterial.SpecularPower = 25.0f;
@@ -88,6 +90,7 @@ namespace GraphicsPractical2
             // Setup the quad
             this.setupQuad();
             this.quadTexture = Content.Load<Texture>("Textures/CobblestonesDiffuse");
+            this.quadNormalMap = Content.Load<Texture>("Normal Maps/CobblestonesNormal");
         }
 
         /// <summary>
@@ -144,6 +147,8 @@ namespace GraphicsPractical2
 
             Effect quadEffect = this.Content.Load<Effect>("Effects/Simple");
             quadEffect.Parameters["QuadTexture"].SetValue(this.quadTexture);
+            quadEffect.Parameters["NormalMap"].SetValue(this.quadNormalMap);
+            quadEffect.Parameters["NormalMapIntensity"].SetValue(1.0f);
             quadEffect.Parameters["World"].SetValue(this.quadTransform);
             quadEffect.CurrentTechnique = quadEffect.Techniques["Texture"];
             this.camera.SetEffectParameters(quadEffect);

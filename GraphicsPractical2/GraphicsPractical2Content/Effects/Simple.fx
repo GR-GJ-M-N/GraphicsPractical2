@@ -11,10 +11,17 @@ float4x4 View, Projection, World;
 float3x3 InvTransposed;
 float4 DiffuseColor, AmbientColor, SpecularColor;
 float3 Light, Camera;
-float AmbientIntensity, SpecularIntensity, SpecularPower;
-texture QuadTexture;
+float AmbientIntensity, SpecularIntensity, SpecularPower, NormalMapIntensity;
+texture QuadTexture, NormalMap;
 sampler2D textureSampler = sampler_state{
 	Texture = <QuadTexture>;
+	MagFilter = Linear;
+	MinFilter = Linear;
+	AddressU = Wrap;
+	AddressV = Wrap;
+};
+sampler2D normalSampler = sampler_state{
+	Texture = <NormalMap>;
 	MagFilter = Linear;
 	MinFilter = Linear;
 	AddressU = Wrap;
@@ -34,7 +41,6 @@ struct VertexShaderInput
 	float4 Normal3D : NORMAL0;
 	float4 Color : COLOR0;
 	float2 TextureCoord : TEXCOORD0;
-	float4 Place : TEXCOORD1;
 };
 
 // The output of the vertex shader. After being passed through the interpolator/rasterizer it is also 
@@ -146,11 +152,8 @@ VertexShaderOutput LambertianVertexShader(VertexShaderInput input)
 	float4 worldPosition = mul(input.Position3D, World);
     float4 viewPosition  = mul(worldPosition, View);
 	output.Position2D    = mul(viewPosition, Projection);
-
-	// Interpolate the 3D position
-	output.WorldPosition = mul(output.Position2D, World);
-
 	output.Normal = input.Normal3D.xyz;	
+	output.Place = worldPosition.xyz;
 
 	return output;
 }
@@ -160,19 +163,18 @@ float4 LambertianPixelShader(VertexShaderOutput input) : COLOR0
 	float3x3 rotationAndScale = (float3x3) World;
 	float3 normal = input.Normal;
 	normal = mul(normal, InvTransposed);
-	float3 tLight = mul(Light, rotationAndScale);
 
 	//Normalize the normal
 	normal = normalize(normal);
 
 	//Calculate L
-	float3 lVector = normalize(tLight - normal);
+	float3 lVector = normalize(Light - input.Place);
 
 	//Calculate n dot l, clamp to 0, 1
 	float intensity = saturate(dot(normal, lVector));
 
 	return AmbientIntensity * AmbientColor + intensity * DiffuseColor;
-
+	//return float4(input.WorldPosition, 1);
 }
 
 technique Lambertian
@@ -195,10 +197,7 @@ VertexShaderOutput BlinnPhongVertexShader(VertexShaderInput input)
 	float4 worldPosition = mul(input.Position3D, World);
     float4 viewPosition  = mul(worldPosition, View);
 	output.Position2D    = mul(viewPosition, Projection);
-
-	// Interpolate the 3D position
-	output.WorldPosition = mul(output.Position2D, World);
-
+	output.Place = worldPosition.xyz;
 	output.Normal = input.Normal3D.xyz;	
 
 	return output;
@@ -209,17 +208,15 @@ float4 BlinnPhongPixelShader(VertexShaderOutput input) : COLOR0
 	float3x3 rotationAndScale = (float3x3) World;
 	float3 normal = input.Normal;
 	normal = mul(normal, InvTransposed);
-	float3 tLight = mul(Light, rotationAndScale);
 
 	//Normalize the normal
 	normal = normalize(normal);
 
 	//Calculate L
-	float3 lVector = normalize(tLight - normal);
+	float3 lVector = normalize(Light - input.Place);
 
 	//Calculate v (the vector to the camera)
-	float3 vVector = normalize(Camera - normal);
-
+	float3 vVector = normalize(Camera - input.Place);
 	float3 hVector = (vVector + lVector) / length(vVector + lVector);
 
 	//Calculate n dot l, clamp to 0, 1
@@ -250,7 +247,6 @@ VertexShaderOutput TextureVertexShader(VertexShaderInput input)
 	float4 worldPosition = mul(input.Position3D, World);
     float4 viewPosition  = mul(worldPosition, View);
 	output.Position2D    = mul(viewPosition, Projection);
-
 	output.Normal = input.Normal3D.xyz;
 	output.TextureCoord = input.TextureCoord;
 
@@ -270,5 +266,67 @@ technique Texture
 	{
 		VertexShader = compile vs_2_0 TextureVertexShader();
 		PixelShader  = compile ps_2_0 TexturePixelShader();
+	}
+}
+
+//---------------------------------------- Technique: 5 Texture(normal mapped) --------------------------
+
+VertexShaderOutput TextureNormalVertexShader(VertexShaderInput input)
+{
+	// Allocate an empty output struct
+	VertexShaderOutput output = (VertexShaderOutput)0;
+
+	// Do the matrix multiplications for perspective projection and the world transform
+	float4 worldPosition = mul(input.Position3D, World);
+    float4 viewPosition  = mul(worldPosition, View);
+	output.Position2D    = mul(viewPosition, Projection);
+	output.Place = worldPosition.xyz;
+	output.Normal = input.Normal3D.xyz;
+	output.TextureCoord = input.TextureCoord;
+
+	return output;
+}
+
+float4 TextureNormalPixelShader(VertexShaderOutput input) : COLOR0
+{
+	float4 textureColor = tex2D(textureSampler, input.TextureCoord);
+
+	float3x3 rotationAndScale = (float3x3) World;
+	float3 normal = input.Normal;
+	normal = mul(normal, InvTransposed);
+	float3 tLight = mul(rotationAndScale, Light);
+
+	//Do normal mapping
+	float4 normalColor = tex2D(normalSampler, input.TextureCoord);
+	float3 bumpNormal = (float3)normalColor * NormalMapIntensity;
+
+	normal = normal + bumpNormal;
+
+	//Normalize the normal
+	normal = normalize(normal);
+
+	//Calculate L
+	float3 lVector = normalize(tLight - input.Place);
+
+	//Calculate v (the vector to the camera)
+	float3 vVector = normalize(Camera - input.Place);
+
+	float3 hVector = (vVector + lVector) / length(vVector + lVector);
+
+	//Calculate n dot l, clamp to 0, 1
+	float intensity = saturate(dot(normal, lVector));
+	float spec = SpecularColor * SpecularIntensity * pow(saturate(dot(normal, hVector)), SpecularPower);
+
+	return intensity * textureColor + spec;
+	//return float4(bumpNormal, 0);
+
+}
+
+technique TextureNormal
+{
+	pass Pass0
+	{
+		VertexShader = compile vs_2_0 TextureNormalVertexShader();
+		PixelShader  = compile ps_2_0 TextureNormalPixelShader();
 	}
 }
