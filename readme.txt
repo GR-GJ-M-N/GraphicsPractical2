@@ -18,4 +18,22 @@ c
 d
 ...
 
-NIET VERGETEN: SOLUTION CLEANEN
+
+Nog doen:
+
+- Eventueel bonus
+
+- 2.4 einde: The model, scaled by  10.0f in the x-direction,  6.5f in the y-direction and  2.5f
+in the z-direction, while still reflecting the light in the correct way. Use the same
+settings for the material and lighting as in the previous three exercises.
+The file name should be “scaling.png”.
+
+- Comments
+
+- c in readme
+
+- d in readme
+
+- Solution cleanen
+
+- Zip inleveren
