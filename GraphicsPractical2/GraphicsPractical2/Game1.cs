@@ -136,23 +136,40 @@ namespace GraphicsPractical2
 
         protected override void Draw(GameTime gameTime)
         {
+            this.GraphicsDevice.RasterizerState = new RasterizerState
+            {
+                CullMode = CullMode.None,
+                FillMode = FillMode.WireFrame
+            };
+
             // Clear the screen in a predetermined color and clear the depth buffer
             this.GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.DeepSkyBlue, 1.0f, 0);
 
             Matrix world = Matrix.CreateScale(10.0f);
 
+<<<<<<< HEAD
             Effect quadEffect = this.Content.Load<Effect>("Effects/Simple");
             quadEffect.Parameters["QuadTexture"].SetValue(this.quadTexture);
             quadEffect.Parameters["World"].SetValue(this.quadTransform);
             quadEffect.CurrentTechnique = quadEffect.Techniques["Texture"];
             this.camera.SetEffectParameters(quadEffect);
+=======
+            Effect quadEffect = this.Content.Load<Effect>("Effects/Quad");
+            quadEffect.CurrentTechnique = quadEffect.Techniques["Technique1"];
+            quadEffect.Parameters["World"].SetValue(world);
+>>>>>>> origin/2.1
 
             foreach (EffectPass pass in quadEffect.CurrentTechnique.Passes)
             {
                 pass.Apply();
+<<<<<<< HEAD
                 this.GraphicsDevice.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, this.quadVertices, 0, 4, this.quadIndices, 0, 2, VertexPositionNormalTexture.VertexDeclaration);
+=======
+                //this.GraphicsDevice.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, this.quadVertices, 0, 4, this.quadIndices, 0, 2);
+>>>>>>> origin/2.1
             }
 
+            this.GraphicsDevice.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, this.quadVertices, 0, 4, this.quadIndices, 0, 2);
 
             // Get the model's only mesh
             ModelMesh mesh = this.model.Meshes[0];
@@ -160,8 +177,12 @@ namespace GraphicsPractical2
 
             // Set the effect parameters
             //effect.CurrentTechnique = effect.Techniques["Simple"]; //1.1 1.2
+<<<<<<< HEAD
             //effect.CurrentTechnique = effect.Techniques["Lambertian"]; //2.1, 2.2
             effect.CurrentTechnique = effect.Techniques["BlinnPhong"]; //2.3
+=======
+            effect.CurrentTechnique = effect.Techniques["Lambertian"]; //2.1, 2.2, 2,3
+>>>>>>> origin/2.1
 
             // Matrices for 3D perspective projection
             this.camera.SetEffectParameters(effect);
