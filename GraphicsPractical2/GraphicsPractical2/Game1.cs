@@ -29,6 +29,7 @@ namespace GraphicsPractical2
         private VertexPositionNormalTexture[] quadVertices;
         private short[] quadIndices;
         private Matrix quadTransform;
+        private Texture quadTexture;
 
         public Game1()
         {
@@ -86,6 +87,7 @@ namespace GraphicsPractical2
 
             // Setup the quad
             this.setupQuad();
+            this.quadTexture = Content.Load<Texture>("Textures/CobblestonesDiffuse");
         }
 
         /// <summary>
@@ -102,18 +104,24 @@ namespace GraphicsPractical2
             // Top left
             this.quadVertices[0].Position = new Vector3(-1, 0, -1);
             this.quadVertices[0].Normal = quadNormal;
+            this.quadVertices[0].TextureCoordinate = new Vector2(-1, -1);
             // Top right
             this.quadVertices[1].Position = new Vector3(1, 0, -1);
             this.quadVertices[1].Normal = quadNormal;
+            this.quadVertices[1].TextureCoordinate = new Vector2(1, -1);
             // Bottom left
             this.quadVertices[2].Position = new Vector3(-1, 0, 1);
             this.quadVertices[2].Normal = quadNormal;
+            this.quadVertices[2].TextureCoordinate = new Vector2(-1, 1);
             // Bottom right
             this.quadVertices[3].Position = new Vector3(1, 0, 1);
             this.quadVertices[3].Normal = quadNormal;
+            this.quadVertices[3].TextureCoordinate = new Vector2(1, 1);
 
             this.quadIndices = new short[] { 0, 1, 2, 1, 2, 3 };
             this.quadTransform = Matrix.CreateScale(scale);
+            Matrix translation = Matrix.CreateTranslation(0, -15.0f, 0);
+            this.quadTransform = Matrix.Multiply(this.quadTransform, translation);
         }
 
         protected override void Update(GameTime gameTime)
@@ -134,13 +142,15 @@ namespace GraphicsPractical2
             Matrix world = Matrix.CreateScale(10.0f);
 
             Effect quadEffect = this.Content.Load<Effect>("Effects/Simple");
+            quadEffect.Parameters["QuadTexture"].SetValue(this.quadTexture);
+            quadEffect.Parameters["World"].SetValue(this.quadTransform);
             quadEffect.CurrentTechnique = quadEffect.Techniques["Texture"];
-            quadEffect.Parameters["World"].SetValue(world);
+            this.camera.SetEffectParameters(quadEffect);
 
             foreach (EffectPass pass in quadEffect.CurrentTechnique.Passes)
             {
                 pass.Apply();
-                this.GraphicsDevice.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, this.quadVertices, 0, 4, this.quadIndices, 0, 2);
+                this.GraphicsDevice.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, this.quadVertices, 0, 4, this.quadIndices, 0, 2, VertexPositionNormalTexture.VertexDeclaration);
             }
 
 
@@ -151,7 +161,7 @@ namespace GraphicsPractical2
             // Set the effect parameters
             //effect.CurrentTechnique = effect.Techniques["Simple"]; //1.1 1.2
             //effect.CurrentTechnique = effect.Techniques["Lambertian"]; //2.1, 2.2
-            effect.CurrentTechnique = effect.Techniques["Lambertian"]; //2.3
+            effect.CurrentTechnique = effect.Techniques["BlinnPhong"]; //2.3
 
             // Matrices for 3D perspective projection
             this.camera.SetEffectParameters(effect);

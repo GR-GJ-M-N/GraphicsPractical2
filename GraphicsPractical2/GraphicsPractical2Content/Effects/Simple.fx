@@ -12,6 +12,14 @@ float3x3 InvTransposed;
 float4 DiffuseColor, AmbientColor, SpecularColor;
 float3 Light, Camera;
 float AmbientIntensity, SpecularIntensity, SpecularPower;
+texture QuadTexture;
+sampler2D textureSampler = sampler_state{
+	Texture = <QuadTexture>;
+	MagFilter = Linear;
+	MinFilter = Linear;
+	AddressU = Wrap;
+	AddressV = Wrap;
+};
 
 //---------------------------------- Input / Output structures ----------------------------------
 
@@ -24,6 +32,7 @@ struct VertexShaderInput
 	float4 Position3D : POSITION0;
 	float4 Normal3D : NORMAL0;
 	float4 Color : COLOR0;
+	float2 TextureCoord : TEXCOORD0;
 };
 
 // The output of the vertex shader. After being passed through the interpolator/rasterizer it is also 
@@ -41,6 +50,7 @@ struct VertexShaderOutput
 	float4 Color : COLOR0;
 	float3 Normal : TEXCOORD0;
 	float3 WorldPosition : TEXCOORD1;
+	float2 TextureCoord : TEXCOORD2;
 };
 
 //------------------------------------------ Functions ------------------------------------------
@@ -208,16 +218,17 @@ VertexShaderOutput TextureVertexShader(VertexShaderInput input)
 	output.Position2D    = mul(viewPosition, Projection);
 
 	output.Normal = input.Normal3D.xyz;
+	output.TextureCoord = input.TextureCoord;
 
 	return output;
 }
 
 float4 TexturePixelShader(VertexShaderOutput input) : COLOR0
 {
-	//float4 color = NormalColor(input);
-	float4 color = float4(1, 1, 1, 1);
+	float4 textureColor = tex2D(textureSampler, input.TextureCoord);
+	//float4 color = float4(input.TextureCoord.x, input.TextureCoord.y, 0, 1);
 
-	return color;
+	return textureColor;
 }
 
 technique Texture
