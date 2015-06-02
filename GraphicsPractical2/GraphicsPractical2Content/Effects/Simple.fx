@@ -27,12 +27,14 @@ sampler2D textureSampler = sampler_state{
 // here and how it should be treated. Read more about the POSITION0 and the many other semantics in 
 // the MSDN library
 
+//input for the vertex shader
 struct VertexShaderInput
 {
 	float4 Position3D : POSITION0;
 	float4 Normal3D : NORMAL0;
 	float4 Color : COLOR0;
 	float2 TextureCoord : TEXCOORD0;
+	float4 Place : TEXCOORD1;
 };
 
 // The output of the vertex shader. After being passed through the interpolator/rasterizer it is also 
@@ -44,6 +46,7 @@ struct VertexShaderInput
 // the pixel shaders have been linearly interpolated between there three vertices!
 // Note 2: You cannot use the data with the POSITION0 semantic in the pixel shader.
 
+// output of the vertex shader
 struct VertexShaderOutput
 {
 	float4 Position2D : POSITION0;
@@ -51,6 +54,8 @@ struct VertexShaderOutput
 	float3 Normal : TEXCOORD0;
 	float3 WorldPosition : TEXCOORD1;
 	float2 TextureCoord : TEXCOORD2;
+	float3 Place : TEXCOORD3;
+	//float4 Place : TEXCOORD0;
 };
 
 //------------------------------------------ Functions ------------------------------------------
@@ -58,14 +63,15 @@ struct VertexShaderOutput
 // Implement the Coloring using normals assignment here
 float4 NormalColor(VertexShaderOutput input)
 {
+	// the normals are used to determine the color
 	return float4(input.Normal.x, input.Normal.y, input.Normal.z, 1);
 }
 
 // Implement the Procedural texturing assignment here
 float4 ProceduralColor(VertexShaderOutput input)
 {
-	return float4(0, 0, 0, 0);
-	//return float4((input.Normal.x % 2), (input.Normal.y % 2), 0, 1);
+	// the negative normals are used to determine the color
+	return float4(-input.Normal.x, -input.Normal.y, -input.Normal.z, 1);
 }
 
 
@@ -82,48 +88,44 @@ VertexShaderOutput SimpleVertexShader(VertexShaderInput input)
 	float4 worldPosition = mul(input.Position3D, World);
     float4 viewPosition  = mul(worldPosition, View);
 	output.Position2D    = mul(viewPosition, Projection);
-	
 
+	// values are passed on into a form which te vertex shader can output
 	output.Normal = input.Normal3D.xyz;
+	output.Place = input.Position3D.xyz;
 
 	return output;
 }
 
-int sizeMultiplier = 8;
+// this variable controles the size of the checkers
+int checkerSize = 8;
 
+//this function returns whether a given point is a black or a white(normal color) pixel
 bool Checker(VertexShaderOutput input)
 {
-	bool x = (int)(input.Normal.x * sizeMultiplier) % 2;
-	bool y = (int)(input.Normal.y * sizeMultiplier) % 2;
-	bool z = (int)(input.Normal.z * sizeMultiplier) % 2;
+	// +3 to avoid having any problems with points which involve a 0
+	bool x = (int)((input.Place.x + 3) * checkerSize) % 2;
+	bool y = (int)((input.Place.y + 3) * checkerSize) % 2;
 
-	// Checkerboard pattern is formed by inverting the boolean flag
-	// at each dimension separately:
-
-	if (x == y && y == z)
+	//the checkerboard pattern is made
+	if (x == y)
 		return true;
 	else
 		return false;
-
-
-	//return (x != y != z);
 }	
 
 float4 SimplePixelShader(VertexShaderOutput input) : COLOR0
 {
+	//use normals to do the coloring
 	if(Checker(input))
 	{
 		return NormalColor(input);
 	}
+	//use negative normals to do the coloring
 	else
 	{
 		return ProceduralColor(input);
 	}
-
 }
-
-
-
 
 technique Simple
 {
@@ -259,7 +261,6 @@ VertexShaderOutput TextureVertexShader(VertexShaderInput input)
 float4 TexturePixelShader(VertexShaderOutput input) : COLOR0
 {
 	float4 textureColor = tex2D(textureSampler, input.TextureCoord);
-	//float4 color = float4(input.TextureCoord.x, input.TextureCoord.y, 0, 1);
 
 	return textureColor;
 }
