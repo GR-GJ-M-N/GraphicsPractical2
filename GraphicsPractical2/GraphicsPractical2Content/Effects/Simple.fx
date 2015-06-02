@@ -55,7 +55,6 @@ struct VertexShaderOutput
 	float3 WorldPosition : TEXCOORD1;
 	float2 TextureCoord : TEXCOORD2;
 	float3 Place : TEXCOORD3;
-	//float4 Place : TEXCOORD0;
 };
 
 //------------------------------------------ Functions ------------------------------------------

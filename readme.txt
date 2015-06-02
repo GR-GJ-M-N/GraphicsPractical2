@@ -10,7 +10,7 @@ b
 2.2 Gert-Jan
 2.3 Gert-Jan
 2.4 Gert-Jan
-3   Gert-Jan
+3   Gert-Jan & Mehul & Norico
 
 c
 ...
